@@ -15,18 +15,33 @@ public partial class MainForm : Form
 
     private void LoadTasksToGrid()
     {
-        dgvTasks.DataSource = dbHelper.LoadTasks();
+        try
+        {
+            dgvTasks.DataSource = dbHelper.LoadTasks();
+            dgvTasks.Refresh(); // Обновление отображения
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Ошибка загрузки задач: {ex.Message}");
+        }
     }
 
     private void btnAdd_Click(object sender, EventArgs e)
     {
         if (!string.IsNullOrWhiteSpace(txtTaskTitle.Text))
         {
-            dbHelper.AddTask(txtTaskTitle.Text, txtDescription.Text, (int)nudPriority.Value);
-            LoadTasksToGrid();
-            txtTaskTitle.Clear();
-            txtDescription.Clear();
-            nudPriority.Value = 2;
+            try
+            {
+                dbHelper.AddTask(txtTaskTitle.Text, txtDescription.Text, (int)nudPriority.Value);
+                LoadTasksToGrid();
+                txtTaskTitle.Clear();
+                txtDescription.Clear();
+                nudPriority.Value = 2;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при добавлении задачи: {ex.Message}");
+            }
         }
         else
         {
@@ -38,9 +53,23 @@ public partial class MainForm : Form
     {
         if (dgvTasks.SelectedRows.Count > 0)
         {
-            int taskId = (int)dgvTasks.SelectedRows[0].Cells["Id"].Value;
-            dbHelper.MarkAsCompleted(taskId);
-            LoadTasksToGrid();
+            var cellValue = dgvTasks.SelectedRows[0].Cells["Id"].Value;
+            if (cellValue != null && int.TryParse(cellValue.ToString(), out int taskId))
+            {
+                try
+                {
+                    dbHelper.MarkAsCompleted(taskId);
+                    LoadTasksToGrid();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка отметки задачи: {ex.Message}");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Не удалось получить ID задачи.");
+            }
         }
     }
 
@@ -48,9 +77,23 @@ public partial class MainForm : Form
     {
         if (dgvTasks.SelectedRows.Count > 0)
         {
-            int taskId = (int)dgvTasks.SelectedRows[0].Cells["Id"].Value;
-            dbHelper.DeleteTask(taskId);
-            LoadTasksToGrid();
+            var cellValue = dgvTasks.SelectedRows[0].Cells["Id"].Value;
+            if (cellValue != null && int.TryParse(cellValue.ToString(), out int taskId))
+            {
+                try
+                {
+                    dbHelper.DeleteTask(taskId);
+                    LoadTasksToGrid();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка удаления задачи: {ex.Message}");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Не удалось получить ID задачи.");
+            }
         }
     }
 }
