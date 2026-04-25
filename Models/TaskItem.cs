@@ -9,6 +9,6 @@ namespace TaskManager.Models
         public bool IsCompleted { get; set; }
         public string Description { get; set; } = string.Empty;
         public int Priority { get; set; }
-        public DateTime CreatedDate { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
     }
 }

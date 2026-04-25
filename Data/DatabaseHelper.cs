@@ -1,6 +1,5 @@
 ﻿using Npgsql;
 using System.Collections.Generic;
-
 using Npgsql;
 
 public class DatabaseHelper
@@ -13,7 +12,7 @@ public class DatabaseHelper
         return new NpgsqlConnection(connectionString);
     }
 
-    public List<TaskItem> LoadTasks()
+    public List<Tasktem> LoadTasks()
     {
         var tasks = new List<TaskItem>();
         using (var conn = GetConnection())
