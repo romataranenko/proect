@@ -12,7 +12,6 @@ namespace TaskManager.Services
     {
         private readonly string _connectionString;
 
-        // Замените строку подключения на вашу реальную
         public DatabaseHelper(string connectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=TaskDB;Integrated Security=True")
         {
             _connectionString = connectionString;
