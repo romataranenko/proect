@@ -2,7 +2,6 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
-using proect.Views;
 using TaskManager.Interfaces;
 using TaskManager.Services;
 using TaskManager.ViewModels;
