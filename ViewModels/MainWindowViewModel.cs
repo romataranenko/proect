@@ -42,7 +42,7 @@ namespace TaskManager
                     LoadTasksToGrid();
                     txtTaskTitle.Clear();
                     txtDescription.Clear();
-                    cmbPriority.SelectedIndex = 1; // «Средний» приоритет по умолчанию
+                    cmbPriority.SelectedIndex = 1;
                 }
                 catch (Exception ex)
                 {
