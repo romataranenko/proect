@@ -1,24 +1,23 @@
 ﻿using Npgsql;
 using System.Collections.Generic;
-using Npgsql;
+using TaskManager.Models; 
 
 public class DatabaseHelper
 {
-    private static string connectionString =
-        "Host=localhost;Port=5432;Username=postgres;Password=root;Database=p511_db";
+    private static string connectionString = "Host=localhost;Port=5432;Username=postgres;Password=root;Database=p511_db";
 
     public static NpgsqlConnection GetConnection()
     {
         return new NpgsqlConnection(connectionString);
     }
 
-    public List<Tasktem> LoadTasks()
+    public List<TaskItem> LoadTasks()
     {
         var tasks = new List<TaskItem>();
         using (var conn = GetConnection())
         {
             conn.Open();
-            var query = "SELECT * FROM tasks ORDER BY created_date DESC";
+            var query = "SELECT * FROM tasks ORDER BY created_date DESC"; // ОШИБКА В SQL!
             using (var cmd = new NpgsqlCommand(query, conn))
             using (var reader = cmd.ExecuteReader())
             {
@@ -35,7 +34,7 @@ public class DatabaseHelper
                     });
                 }
             }
-        return tasks;
+            return tasks;
+        }
     }
-}
 }
