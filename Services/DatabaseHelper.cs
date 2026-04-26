@@ -12,7 +12,7 @@ namespace TaskManager.Services
     {
         private readonly string _connectionString;
 
-        public DatabaseHelper(string connectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=TaskDB;Integrated Security=True")
+        public DatabaseHelper(string connectionString = @"Host=localhost;Database=p511_db;Username=postgres;Password=postgres")
         {
             _connectionString = connectionString;
         }
