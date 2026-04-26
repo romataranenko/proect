@@ -1,14 +1,18 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace TaskManager.Models
+namespace TaskManager.Models;
+
+public partial class TaskItem : ObservableObject
 {
-    public class TaskItem
-    {
-        public int Id { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public bool IsCompleted { get; set; }
-        public string Description { get; set; } = string.Empty;
-        public int Priority { get; set; }
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
-    }
+    [ObservableProperty]
+    private int _id;
+
+    [ObservableProperty]
+    private string _title = string.Empty;
+
+    [ObservableProperty]
+    private string _description = string.Empty;
+
+    [ObservableProperty]
+    private bool _isCompleted;
 }

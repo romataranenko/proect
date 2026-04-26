@@ -1,90 +1,74 @@
-﻿using Avalonia.Controls;
-using Avalonia.Interactivity;
-using System;
-using System.Collections.Generic;
-using System.Windows;
+﻿using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using TaskManager.Interfaces;
+using TaskManager.Models;
 
-namespace TaskManager
+namespace TaskManager.ViewModels;
+
+public partial class MainWindowViewModel : ObservableObject
 {
-    public partial class MainWindow : Window
+    private readonly IDatabaseHelper _db;
+
+    [ObservableProperty]
+    private ObservableCollection<TaskItem> _tasks = new();
+
+    [ObservableProperty]
+    private string _newTaskTitle = string.Empty;
+
+    [ObservableProperty]
+    private string _newTaskDescription = string.Empty;
+
+    public MainWindowViewModel(IDatabaseHelper db)
     {
-        private DatabaseHelper dbHelper;
+        _db = db;
+        LoadTasksCommand.Execute(null);
+    }
 
-        public MainWindow()
+    public IAsyncRelayCommand LoadTasksCommand => new AsyncRelayCommand(LoadTasksAsync);
+    public IAsyncRelayCommand AddTaskCommand => new AsyncRelayCommand(AddTaskAsync, () => !string.IsNullOrWhiteSpace(NewTaskTitle));
+    public IAsyncRelayCommand<TaskItem> DeleteTaskCommand => new AsyncRelayCommand<TaskItem>(DeleteTaskAsync);
+    public IAsyncRelayCommand<TaskItem> ToggleCompleteCommand => new AsyncRelayCommand<TaskItem>(ToggleCompleteAsync);
+
+    private async Task LoadTasksAsync()
+    {
+        var tasks = await _db.GetTasksAsync();
+        Tasks.Clear();
+        foreach (var task in tasks)
+            Tasks.Add(task);
+    }
+
+    private async Task AddTaskAsync()
+    {
+        var newTask = new TaskItem
         {
-            InitializeComponent();
-            dbHelper = new DatabaseHelper();
-            LoadTasksToGrid();
+            Title = NewTaskTitle,
+            Description = NewTaskDescription
+        };
+        await _db.AddTaskAsync(newTask);
+        NewTaskTitle = string.Empty;
+        NewTaskDescription = string.Empty;
+        await LoadTasksAsync();
+    }
+
+    private async Task DeleteTaskAsync(TaskItem task)
+    {
+        if (task != null)
+        {
+            await _db.DeleteTaskAsync(task.Id);
+            await LoadTasksAsync();
         }
+    }
 
-        private void LoadTasksToGrid()
+    private async Task ToggleCompleteAsync(TaskItem task)
+    {
+        if (task != null)
         {
-            try
-            {
-                dgvTasks.ItemsSource = dbHelper.LoadTasks();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка загрузки задач: {ex.Message}");
-            }
-        }
-
-        private void BtnAdd_Click(object sender, RoutedEventArgs e)
-        {
-            if (!string.IsNullOrWhiteSpace(txtTaskTitle.Text))
-            {
-                try
-                {
-                    var selectedItem = cmbPriority.SelectedItem as ComboBoxItem;
-                    int priority = selectedItem != null && int.TryParse(selectedItem.Tag?.ToString(), out int tag) ? tag : 2;
-
-                    dbHelper.AddTask(txtTaskTitle.Text, txtDescription.Text, priority);
-                    LoadTasksToGrid();
-                    txtTaskTitle.Clear();
-                    txtDescription.Clear();
-                    cmbPriority.SelectedIndex = 1;
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Ошибка при добавлении задачи: {ex.Message}");
-                }
-            }
-            else
-            {
-                MessageBox.Show("Введите название задачи!");
-            }
-        }
-
-        private void BtnMarkCompleted_Click(object sender, RoutedEventArgs e)
-        {
-            if (dgvTasks.SelectedItem is TaskItem selectedTask)
-            {
-                try
-                {
-                    dbHelper.MarkAsCompleted(selectedTask.Id);
-                    LoadTasksToGrid();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Ошибка отметки выполнения: {ex.Message}");
-                }
-            }
-        }
-
-        private void BtnDelete_Click(object sender, RoutedEventArgs e)
-        {
-            if (dgvTasks.SelectedItem is TaskItem selectedTask)
-            {
-                try
-                {
-                    dbHelper.DeleteTask(selectedTask.Id);
-                    LoadTasksToGrid();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Ошибка удаления задачи: {ex.Message}");
-                }
-            }
+            task.IsCompleted = !task.IsCompleted;
+            await _db.UpdateTaskAsync(task);
+            await LoadTasksAsync();
         }
     }
 }

@@ -1,44 +1,45 @@
-<Window x:Class="TaskManager.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Менеджер задач" Height="450" Width="800">
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:TaskManager.ViewModels"
+        mc:Ignorable="d"
+        d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="TaskManager.Views.MainWindow"
+        Title="Task Manager"
+        Width="800" Height="450">
+    <Design.DataContext>
+        <viewModels:MainWindowViewModel/>
+    </Design.DataContext>
 
-        <!-- Панель добавления задачи -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-            <TextBox x:Name="txtTaskTitle" Width="200" Margin="0,0,10,0"
-                    PlaceholderText="Название задачи"/>
-            <TextBox x:Name="txtDescription" Width="300" Margin="10,0,10,0"
-            PlaceholderText="Описание"/>
-            <ComboBox x:Name="cmbPriority" Width="100" Margin="10,0,10,0">
-                <ComboBoxItem Content="Высокий" Tag="1"/>
-                <ComboBoxItem Content="Средний" Tag="2" IsSelected="True"/>
-                <ComboBoxItem Content="Низкий" Tag="3"/>
-            </ComboBox>
-            <Button x:Name="btnAdd" Content="Добавить" Click="BtnAdd_Click" Width="80"/>
+    <DockPanel>
+        <!-- Верхняя панель добавления -->
+        <StackPanel DockPanel.Dock="Top" Margin="10" Spacing="5">
+            <TextBox Watermark="Название задачи" Text="{Binding NewTaskTitle}" />
+            <TextBox Watermark="Описание (необязательно)" Text="{Binding NewTaskDescription}" />
+            <Button Content="Добавить задачу" Command="{Binding AddTaskCommand}" HorizontalAlignment="Left" />
         </StackPanel>
 
-        <!-- Список задач -->
-        <DataGrid x:Name="dgvTasks" Grid.Row="1" AutoGenerateColumns="False"
-                  Margin="0,10,0,10" SelectionMode="Single">
+        <!-- Таблица задач -->
+        <DataGrid ItemsSource="{Binding Tasks}" AutoGenerateColumns="False" CanUserReorderColumns="True"
+                  CanUserResizeColumns="True" Margin="10">
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Header="Выполнено" Binding="{Binding IsCompleted}"/>
-                <DataGridTextColumn Header="Название" Binding="{Binding Title}" Width="*"/>
-                <DataGridTextColumn Header="Приоритет" Binding="{Binding Priority}" Width="80"/>
-                <DataGridTextColumn Header="Дата" Binding="{Binding CreatedDate, StringFormat={}{0:dd.MM.yyyy}}" Width="100"/>
+                <DataGridCheckBoxColumn Header="Выполнено" Binding="{Binding IsCompleted}" />
+                <DataGridTextColumn Header="Название" Binding="{Binding Title}" Width="*" />
+                <DataGridTextColumn Header="Описание" Binding="{Binding Description}" Width="2*" />
+                <DataGridTemplateColumn Header="Действия" Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <Button Content="Удалить" Command="{Binding $parent[DataGrid].DataContext.DeleteTaskCommand}"
+                                        CommandParameter="{Binding}" />
+                                <Button Content="Переключить" Command="{Binding $parent[DataGrid].DataContext.ToggleCompleteCommand}"
+                                        CommandParameter="{Binding}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-
-        <!-- Кнопки управления -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button x:Name="btnMarkCompleted" Content="Отметить как выполненную"
-                    Click="BtnMarkCompleted_Click" Margin="0,0,10,0"/>
-            <Button x:Name="btnDelete" Content="Удалить" Click="BtnDelete_Click" Width="80"/>
-        </StackPanel>
-    </Grid>
+    </DockPanel>
 </Window>
